@@ -16,9 +16,17 @@ class GoogleDriveHandler {
   google_sign_in.GoogleSignInAccount? account;
 
   String? _googlDriveApiKey;
+  String? _serverClientId;
+  String? _iosClientId;
 
-  void setAPIKey({required String apiKey}) {
+  void setup({
+    required String apiKey,
+    required String serverClientId,
+    String? iosClientId,
+  }) {
     _googlDriveApiKey = apiKey;
+    _serverClientId = serverClientId;
+    _iosClientId = iosClientId;
   }
 
   Future getFileFromGoogleDrive({required BuildContext context}) async {
@@ -54,9 +62,29 @@ class GoogleDriveHandler {
   }
 
   Future _signinUser() async {
-    final googleSignIn = google_sign_in.GoogleSignIn.instance
-        .authenticate(scopeHint: [drive.DriveApi.driveScope]);
-    account = await googleSignIn;
+    google_sign_in.GoogleSignIn googleSignIn;
+    // Detect platform for clientId
+    // ignore: avoid_dynamic_calls
+    bool isIOS = false;
+    try {
+      // Use defaultTargetPlatform if available, fallback to runtimeType
+      isIOS = ThemeData.fallback().platform == TargetPlatform.iOS;
+    } catch (_) {}
+    if (isIOS && _iosClientId != null) {
+      google_sign_in.GoogleSignIn.instance.initialize(
+        clientId: _iosClientId,
+        serverClientId: _serverClientId,
+      );
+    } else {
+      google_sign_in.GoogleSignIn.instance.initialize(
+          clientId: _serverClientId, serverClientId: _serverClientId);
+    }
+    account =
+        await google_sign_in.GoogleSignIn.instance.authenticate(scopeHint: [
+      drive.DriveApi.driveScope,
+    ]).catchError((error) {
+      log("Error signing in: $error");
+    });
     return;
   }
 }

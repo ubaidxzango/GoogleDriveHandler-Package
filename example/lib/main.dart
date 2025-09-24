@@ -34,9 +34,8 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    GoogleDriveHandler().setAPIKey(
-      apiKey: myApiKey,
-    );
+    GoogleDriveHandler().setup(
+        apiKey: myApiKey, serverClientId: 'YOUR_SERVER', iosClientId: '');
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -52,7 +51,8 @@ class MainScreen extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () async {
-                File? myFile = await GoogleDriveHandler().getFileFromGoogleDrive(context: context);
+                File? myFile = await GoogleDriveHandler()
+                    .getFileFromGoogleDrive(context: context);
                 if (myFile != null) {
                   /// Do something with the file
                   /// for instance open the file

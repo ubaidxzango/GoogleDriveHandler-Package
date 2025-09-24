@@ -9,14 +9,15 @@ import 'googledrivehandler_screen.dart';
 
 class GoogleDriveHandler {
   GoogleDriveHandler._internal();
-  static final GoogleDriveHandler _googleDriveHandler = GoogleDriveHandler._internal();
+  static final GoogleDriveHandler _googleDriveHandler =
+      GoogleDriveHandler._internal();
   factory GoogleDriveHandler() => _googleDriveHandler;
 
   google_sign_in.GoogleSignInAccount? account;
 
   String? _googlDriveApiKey;
 
-  setAPIKey({required String apiKey}) {
+  void setAPIKey({required String apiKey}) {
     _googlDriveApiKey = apiKey;
   }
 
@@ -24,6 +25,7 @@ class GoogleDriveHandler {
     if (_googlDriveApiKey != null) {
       await _signinUser();
       if (account != null) {
+        // ignore: use_build_context_synchronously
         return await _openGoogleDriveScreen(context);
       } else {
         log("Google Signin was declined by the user!");
@@ -33,9 +35,10 @@ class GoogleDriveHandler {
     }
   }
 
-  _openGoogleDriveScreen(BuildContext context) async {
-    final authHeaders = await account!.authHeaders;
-    final authenticateClient = _GoogleAuthClient(authHeaders);
+  Future<Future> _openGoogleDriveScreen(BuildContext context) async {
+    final authHeaders = await account!.authorizationClient
+        .authorizationHeaders([drive.DriveApi.driveScope]);
+    final authenticateClient = _GoogleAuthClient(authHeaders ?? {});
     final driveApi = drive.DriveApi(authenticateClient);
     drive.FileList fileList = await driveApi.files.list();
     return Navigator.of(context).push(
@@ -51,8 +54,9 @@ class GoogleDriveHandler {
   }
 
   Future _signinUser() async {
-    final googleSignIn = google_sign_in.GoogleSignIn.standard(scopes: [drive.DriveApi.driveScope]);
-    account = await googleSignIn.signIn();
+    final googleSignIn = google_sign_in.GoogleSignIn.instance
+        .authenticate(scopeHint: [drive.DriveApi.driveScope]);
+    account = await googleSignIn;
     return;
   }
 }

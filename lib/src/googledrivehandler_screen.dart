@@ -33,7 +33,7 @@ class GoogleDriveScreen extends StatefulWidget {
 
 class _GoogleDriveScreenState extends State<GoogleDriveScreen> {
   //On every search input this function gets called, and the search value (searchVal gets updated).
-  onSearchFieldChange(String val) {
+  void onSearchFieldChange(String val) {
     setState(() {
       searchVal = val;
     });
@@ -173,7 +173,8 @@ class _GoogleDriveScreenState extends State<GoogleDriveScreen> {
                                       builder: (context) => DownloadAlertDialog(
                                         fileName: file.name ?? "NO-FILE-NAME",
                                         callBackFunction: () async {
-                                          await _onItemTap(file, widget.authenticateClient);
+                                          await _onItemTap(
+                                              file, widget.authenticateClient);
                                         },
                                       ),
                                     );
@@ -187,7 +188,9 @@ class _GoogleDriveScreenState extends State<GoogleDriveScreen> {
                               ));
                       } else {
                         // if the searchVal is not null return only the files that contatins the searchVal in their name
-                        if (file.name!.toLowerCase().contains(searchVal!.toLowerCase())) {
+                        if (file.name!
+                            .toLowerCase()
+                            .contains(searchVal!.toLowerCase())) {
                           return file.mimeType!.contains(".folder")
                               ? const SizedBox.shrink()
                               : Padding(
@@ -196,7 +199,8 @@ class _GoogleDriveScreenState extends State<GoogleDriveScreen> {
                                   ),
                                   child: GestureDetector(
                                     onTap: () async {
-                                      await _onItemTap(file, widget.authenticateClient);
+                                      await _onItemTap(
+                                          file, widget.authenticateClient);
                                     },
                                     child: _ItemCard(
                                       file: file,
@@ -254,7 +258,8 @@ class _GoogleDriveScreenState extends State<GoogleDriveScreen> {
       );
     } else if (!fileMimeType.contains(".folder")) {
       // If the file is uploaded from somewhere else or if the file is not a google doc file process it with the "Files: Get" process.
-      String url = "https://www.googleapis.com/drive/v3/files/$fileId?includeLabels=alt%3Dmedia&alt=media&key=${widget.googleDriveApiKey} HTTP/1.1";
+      String url =
+          "https://www.googleapis.com/drive/v3/files/$fileId?includeLabels=alt%3Dmedia&alt=media&key=${widget.googleDriveApiKey} HTTP/1.1";
 
       response = await authenticateClient.get(
         Uri.parse(url),
@@ -283,11 +288,10 @@ class _GoogleDriveScreenState extends State<GoogleDriveScreen> {
 // This is the custom widget which lays out the google drive files.
 class _ItemCard extends StatelessWidget {
   _ItemCard({
-    Key? key,
     required this.file,
     required this.fileList,
     required this.index,
-  }) : super(key: key);
+  });
 
   final int index;
   final File file;
@@ -295,7 +299,10 @@ class _ItemCard extends StatelessWidget {
 
   // Add other mimeTypes here
   final List<String> videoFileExt = ["video/mp4", "audio/mp4"];
-  final List<String> powerpointExt = ["application/vnd.openxmlformats-officedocument.presentationml.presentation", "application/vnd.google-apps.presentation"];
+  final List<String> powerpointExt = [
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/vnd.google-apps.presentation"
+  ];
   final List<String> pdfExt = ["application/pdf"];
   final List<String> picExt = ["image/jpeg"];
 
@@ -358,7 +365,9 @@ class DownloadAlertDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return io.Platform.isIOS ? _buildCupertinoDialog(context) : _buildMaterialDialog(context);
+    return io.Platform.isIOS
+        ? _buildCupertinoDialog(context)
+        : _buildMaterialDialog(context);
   }
 
   Widget _buildMaterialDialog(BuildContext context) {
